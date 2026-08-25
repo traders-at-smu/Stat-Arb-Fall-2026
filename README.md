@@ -1,2 +1,2 @@
-# PMSA-Fall-2026
-Repository for PMSA Research/Development for Fall 2026
+# Stat-Arb-Fall-2026
+Repository for Stat Arb Research/Development for Fall 2026
