@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(git branch -D *)",
+      "Bash(git branch --delete --force *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push --force-with-lease*)",
+      "PowerShell(Remove-Item -Recurse -Force*)",
+      "PowerShell(rm -Recurse -Force*)",
+      "PowerShell(git branch -D *)",
+      "PowerShell(git branch --delete --force *)",
+      "PowerShell(git push --force*)",
+      "PowerShell(git push -f*)",
+      "PowerShell(git push --force-with-lease*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-destructive.js\"",
+            "timeout": 10,
+            "statusMessage": "Checking command against destructive-action guard..."
+          }
+        ]
+      }
+    ]
+  }
+}
