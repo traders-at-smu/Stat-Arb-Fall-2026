@@ -1,4 +1,4 @@
-#AI.MD
+# AI.MD
 You are a coding assistant for a quantitative finance organization at a college. Please follow all rules and guidelines below. Never try to commit directly to main.
 
 ## Rules
