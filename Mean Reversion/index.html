@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="SPY's share price rebuilt from its 500 S&P constituents and from the eleven Select Sector SPDR ETFs, 20 Mar - 18 Sep 2026.">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Basket Tracking Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --plane:#f7f7f5; --surface:#fdfdfc;
+  --ink:#0b0b0b; --ink-2:#52514e; --ink-3:#898781;
+  --grid:#e4e3dd; --axis:#c6c5bc; --rule:rgba(11,11,11,.11);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --tip-bg:#ffffff; --hover:rgba(42,120,214,.07);
+  --shadow:0 1px 2px rgba(11,11,11,.06),0 8px 24px rgba(11,11,11,.07);
+  --scrim:rgba(11,11,11,.34);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --plane:#0d0d0e; --surface:#1a1b1d;
+    --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8f8e88;
+    --grid:#2c2d2f; --axis:#3a3b3d; --rule:rgba(255,255,255,.12);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+    --tip-bg:#232426; --hover:rgba(57,135,229,.14);
+    --shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.45);
+    --scrim:rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --plane:#0d0d0e; --surface:#1a1b1d;
+  --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#8f8e88;
+  --grid:#2c2d2f; --axis:#3a3b3d; --rule:rgba(255,255,255,.12);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --tip-bg:#232426; --hover:rgba(57,135,229,.14);
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.45);
+  --scrim:rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--plane);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding-inline:20px;padding-block:44px 64px}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:11.5px;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
+h1{font-family:"IBM Plex Serif",Georgia,serif;font-weight:600;
+  font-size:clamp(28px,5.4vw,42px);line-height:1.12;letter-spacing:-.015em;
+  margin:0 0 16px;text-wrap:balance;max-width:20ch}
+.standfirst{font-size:17px;line-height:1.6;color:var(--ink-2);margin:0;max-width:62ch}
+.standfirst b{color:var(--ink);font-weight:600}
+.masthead{border-bottom:1px solid var(--rule);padding-bottom:30px;margin-bottom:26px}
+.keyrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.key{flex:1 1 180px;background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:14px 16px}
+.key .lab{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:7px;line-height:1.5}
+.swatch{width:9px;height:9px;border-radius:2px;flex:none}
+.key .val{font-family:"IBM Plex Mono",monospace;font-size:25px;font-weight:500;margin-top:9px;letter-spacing:-.02em}
+.key .sub{font-size:12.5px;color:var(--ink-2);margin-top:3px;line-height:1.4}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule);margin-bottom:26px;flex-wrap:wrap}
+.tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;
+  padding:10px 14px;font:inherit;font-size:14px;font-weight:600;color:var(--ink-3);cursor:pointer;margin-bottom:-1px}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--s1)}
+.tab:focus-visible{outline:2px solid var(--s1);outline-offset:2px;border-radius:2px}
+h2{font-family:"IBM Plex Serif",Georgia,serif;font-weight:600;font-size:21px;letter-spacing:-.01em;margin:38px 0 6px}
+h2:first-of-type{margin-top:0}
+.note{font-size:14px;color:var(--ink-2);margin:0 0 20px;max-width:64ch}
+figure{margin:0}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:16px 16px 10px;position:relative}
+.cap{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.cap .t{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.cap .r{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.stack{display:flex;flex-direction:column;gap:14px}
+.chart{position:relative;width:100%;touch-action:pan-y}
+.chart svg{display:block;width:100%}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .09s;
+  background:var(--tip-bg);border:1px solid var(--rule);border-radius:3px;
+  box-shadow:var(--shadow);padding:8px 10px;font-size:12px;z-index:5;min-width:152px}
+.tip .d{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-3);margin-bottom:5px}
+.tip .row{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:2px}
+.tip .nm{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+.tip .v{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin:0 0 12px}
+.lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2)}
+.togs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.tog{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink-2);
+  cursor:pointer;user-select:none;border:1px solid var(--rule);border-radius:3px;padding:6px 11px;
+  background:var(--plane)}
+.tog:hover{border-color:var(--axis)}
+.tog input{width:14px;height:14px;margin:0;cursor:pointer;flex:none}
+.tog.on{color:var(--ink);background:var(--surface);border-color:var(--axis)}
+.tog:focus-within{outline:2px solid var(--s1);outline-offset:2px}
+.tog .val{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--ink-3)}
+.emptychart{display:flex;align-items:center;justify-content:center;color:var(--ink-3);font-size:13px;
+  border:1px dashed var(--rule);border-radius:3px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:right;padding:7px 12px;border-bottom:1px solid var(--rule)}
+th:first-child,td:first-child{text-align:left}
+th{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:400;position:sticky;top:0;background:var(--surface);z-index:1}
+td{font-variant-numeric:tabular-nums;font-family:"IBM Plex Mono",monospace}
+td:first-child{font-family:"IBM Plex Sans",sans-serif}
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:3px}
+.tallscroll{max-height:560px;overflow-y:auto}
+td.l,th.l{text-align:left}
+td.drill{cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule);
+  text-underline-offset:3px}
+td.drill:hover{background:var(--hover);text-decoration-color:var(--s1)}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--hover)}
+.pos{color:#0d7a37}.neg{color:#b23b3b}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pos{color:#4ec97d}:root:not([data-theme="light"]) .neg{color:#f08a8a}}
+:root[data-theme="dark"] .pos{color:#4ec97d}:root[data-theme="dark"] .neg{color:#f08a8a}
+.sparkgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.spark{background:var(--surface);border:1px solid var(--rule);border-radius:3px;padding:11px 12px 6px}
+.spark .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px}
+.spark .nm{font-size:13px;font-weight:600}
+.spark .rg{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.spark svg{display:block;width:100%}
+.ov{position:fixed;inset:0;background:var(--scrim);z-index:50;display:flex;
+  align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.ov[hidden]{display:none!important}
+.sheet{background:var(--surface);border:1px solid var(--rule);border-radius:4px;box-shadow:var(--shadow);
+  width:100%;max-width:760px;margin:auto 0}
+.sheet.full{max-width:1100px}
+.sheethead{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--rule);
+  position:sticky;top:0;background:var(--surface);border-radius:4px 4px 0 0;z-index:2}
+.sheethead .ttl{font-family:"IBM Plex Serif",Georgia,serif;font-size:18px;font-weight:600;line-height:1.25}
+.sheethead .sub{font-size:12.5px;color:var(--ink-2);margin-top:3px;font-variant-numeric:tabular-nums}
+.sheethead .grow{flex:1;min-width:0}
+.btn{appearance:none;background:none;border:1px solid var(--rule);border-radius:3px;
+  color:var(--ink-2);font:inherit;font-size:12.5px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--hover);color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+.x{font-size:19px;line-height:1;padding:3px 9px}
+.sheetbody{padding:0 0 4px}
+.sheetbody .scroll{border:0;border-radius:0}
+.sheetfoot{padding:12px 18px;border-top:1px solid var(--rule);display:flex;
+  justify-content:space-between;gap:12px;font-size:12.5px;color:var(--ink-2);flex-wrap:wrap}
+.sheetfoot b{font-family:"IBM Plex Mono",monospace;color:var(--ink);font-variant-numeric:tabular-nums}
+.more{padding:12px 18px;border-top:1px solid var(--rule);text-align:center}
+.bar{height:5px;border-radius:2px;background:var(--s3);display:block;min-width:1px}
+.bar.eq{background:var(--s2)}
+.barcell{width:90px;padding-right:14px}
+.method{border-top:1px solid var(--rule);margin-top:44px;padding-top:24px;font-size:13.5px;color:var(--ink-2);line-height:1.65}
+.method h3{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:400;margin:0 0 10px}
+.method p{margin:0 0 11px;max-width:68ch}
+.method code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--plane);
+  padding:1px 5px;border-radius:2px;border:1px solid var(--rule)}
+.flag{border-left:2px solid var(--s2);padding:2px 0 2px 14px;margin:0 0 11px;max-width:68ch;color:var(--ink-2)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Traders@SMU · Stat Arb · 20 Mar – 18 Sep 2026 · 126 sessions</p>
+    <h1>Rebuilding SPY's share price from its parts.</h1>
+    <p class="standfirst">
+      Both baskets are market-cap weighted with a divisor, the way the index itself is built, and both
+      start at SPY's actual 20 March close of <b>$648.57</b>. Rebuilt from the 500 constituent equities,
+      SPY comes back within <b>27 cents</b>. Rebuilt from the eleven sector ETFs at those same index
+      weights, it lands <b>$2.92</b> short — and that shortfall is not a mistake or an arbitrage.
+      It is the Select Sector capping rule, and it is measurable.
+    </p>
+    <div class="keyrow">
+      <div class="key">
+        <div class="lab"><span class="swatch" style="background:var(--s1)"></span>SPY price</div>
+        <div class="val">$761.69</div><div class="sub">+17.44% · actual close</div>
+      </div>
+      <div class="key">
+        <div class="lab"><span class="swatch" style="background:var(--s3)"></span>From sector ETFs</div>
+        <div class="val">$758.77</div><div class="sub">+16.99% · $2.92 below SPY</div>
+      </div>
+      <div class="key">
+        <div class="lab"><span class="swatch" style="background:var(--s2)"></span>From 500 equities</div>
+        <div class="val">$761.96</div><div class="sub">+17.48% · $0.27 above SPY</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-c" aria-controls="p-c" aria-selected="true">Charts</button>
+    <button class="tab" role="tab" id="tab-d" aria-controls="p-d" aria-selected="false">Daily prices</button>
+    <button class="tab" role="tab" id="tab-w" aria-controls="p-w" aria-selected="false">Sector weights</button>
+    <button class="tab" role="tab" id="tab-g" aria-controls="p-g" aria-selected="false">Why the gap</button>
+  </div>
+
+  <section id="p-c" role="tabpanel" aria-labelledby="tab-c">
+    <h2>Each series on its own</h2>
+    <p class="note">All three panels share one vertical scale ($625–$790) so they are comparable by eye. Hover any panel for that session's reading.</p>
+    <div class="stack">
+      <figure class="card">
+        <figcaption class="cap"><span class="t"><span class="swatch" style="background:var(--s1)"></span>SPY price</span><span class="r">$648.57 → $761.69</span></figcaption>
+        <div class="chart" data-series="spy" data-h="190"></div>
+      </figure>
+      <figure class="card">
+        <figcaption class="cap"><span class="t"><span class="swatch" style="background:var(--s3)"></span>SPY price from combined sector ETFs</span><span class="r">$648.57 → $758.77</span></figcaption>
+        <div class="chart" data-series="sec" data-h="190"></div>
+      </figure>
+      <figure class="card">
+        <figcaption class="cap"><span class="t"><span class="swatch" style="background:var(--s2)"></span>SPY price from combined 500 equities</span><span class="r">$648.57 → $761.96</span></figcaption>
+        <div class="chart" data-series="stk" data-h="190"></div>
+      </figure>
+    </div>
+
+    <h2>All three together</h2>
+    <p class="note">All three sit within a few dollars of each other for the whole window. The sector basket runs rich through June and cheap in the spring — that oscillation, not the endpoint, is where the tradeable signal lives.</p>
+    <figure class="card">
+      <div class="togs" id="togs">
+        <label class="tog on"><input type="checkbox" id="t-spy" checked style="accent-color:var(--s1)">
+          <span class="swatch" style="background:var(--s1)"></span>SPY price <span class="val">$761.69</span></label>
+        <label class="tog on"><input type="checkbox" id="t-sec" checked style="accent-color:var(--s3)">
+          <span class="swatch" style="background:var(--s3)"></span>From sector ETFs <span class="val">$758.77</span></label>
+        <label class="tog on"><input type="checkbox" id="t-stk" checked style="accent-color:var(--s2)">
+          <span class="swatch" style="background:var(--s2)"></span>From 500 equities <span class="val">$761.96</span></label>
+      </div>
+      <div class="chart" data-series="all" data-h="340"></div>
+    </figure>
+
+    <h2>Diagnostics</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Series</th><th>End price</th><th>Return</th><th>Ann. vol</th><th>Corr vs SPY</th><th>Ann. TE</th><th>Max gap</th></tr></thead>
+        <tbody>
+          <tr><td>SPY price</td><td>$761.69</td><td>+17.44%</td><td>13.49%</td><td>1.0000</td><td>—</td><td>—</td></tr>
+          <tr><td>From sector ETFs</td><td>$758.77</td><td>+16.99%</td><td>13.52%</td><td>0.9806</td><td>2.66%</td><td>$12.30</td></tr>
+          <tr><td>From 500 equities</td><td>$761.96</td><td>+17.48%</td><td>13.56%</td><td>0.9936</td><td>1.53%</td><td>$4.84</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="p-g" role="tabpanel" aria-labelledby="tab-g" hidden>
+    <h2>Why the sector ETFs don't add up to SPY</h2>
+    <p class="note">
+      The obvious objection: if eleven funds contain all 500 stocks, holding them at index weights must
+      reproduce the index — and any gap would be free money. The first half is right. The second isn't,
+      and the reason is structural rather than a modelling error.
+    </p>
+
+    <h2>The weighting is provably correct</h2>
+    <p class="note">
+      Regrouping the 500 equities into 11 sectors and cap-weighting the <i>sectors' own</i> returns
+      reproduces the all-equity basket exactly — correlation <b>1.000000</b>, tracking error
+      <b>0.000%</b>, maximum gap <b>$0.00</b>. That is an algebraic identity, and it rules out any
+      error in the sector weights or the GICS mapping. Swap those underlying sector returns for the
+      ETFs' actual returns and the level falls to $758.77. So the whole gap sits in one place:
+      <b>the ETFs do not return what their own sectors return.</b>
+    </p>
+
+    <h2>Each ETF against the stocks it holds</h2>
+    <p class="note">
+      S&amp;P Dow Jones caps the Select Sector indices at <b>24/50</b> — no company above 24%, and if
+      everything above 4.8% together exceeds 50% of the index, all of it is scaled down. Rebalanced
+      quarterly. In S&amp;P's own published example, Nvidia was cut to 4.5% of the technology index
+      despite a far larger float weight. A capped fund cannot track an uncapped sector.
+    </p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th class="l">ETF</th><th class="l">Sector</th><th>Corr vs own stocks</th><th>Beta</th><th>ETF vol</th><th>Underlying vol</th><th>Ann. TE</th></tr></thead>
+        <tbody id="bbody"></tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:18px">
+      XLC is the clearest case at <b>beta 0.60</b> — it moves barely half as much as the Communication
+      Services stocks it holds, because Alphabet and Meta together blow through the 50% rule and get
+      scaled back hard. Twelve of the fourteen largest ETF-versus-underlying divergences in the entire
+      window are XLC days. XLY sits at 0.83 for the same reason; XLK runs the other way at 1.10,
+      holding relatively more mid-cap tech once its giants are capped.
+    </p>
+    <p class="note">
+      <b>This is not arbitrageable.</b> The gap isn't mispricing between the funds and their holdings —
+      the funds are required to hold different weights than the index does. Capturing it would mean
+      trading the sector basket against single-stock positions sized to undo each cap: a real trade
+      with financing and borrow costs, not free money. The caps exist to satisfy regulated-investment-company
+      diversification rules, so they are not going away.
+    </p>
+
+    <h2>Data notes</h2>
+    <p class="note">
+      <b>Spin-off correction.</b> Honeywell spun off HONA on 29 June. In Compustat, HON's adjustment
+      factor jumps 0.5 → 1.0 and its share count halves that day, making a naive adjusted-price chain
+      read a <b>−50.95%</b> return. HON did not lose half its value — holders received HONA shares, and
+      index methodology absorbs a spin-off through the divisor. That security-day is excluded; leaving
+      it in was dragging the equity basket down about 90 cents. Every other move above 20% was checked:
+      seven ordinary splits (APH, BKNG, CRWD, CVNA, DD, KLAC, MNST) are handled correctly at a maximum
+      of 5.5%, and the rest are genuine news.
+    </p>
+    <p class="note">
+      <b>Residual tracking error.</b> The equity basket's 1.53% tracking error against SPY is
+      concentrated rather than systematic — three sessions drive most of it, and excluding them it
+      falls to 0.90%. It reverses day to day (lag-1 autocorrelation −0.46) with cumulative drift of
+      about −0.08%: the signature of isolated pricing noise, not a weighting bias. The S&amp;P 500
+      weights by float-adjusted market cap while Compustat supplies total shares outstanding, so a
+      small bias may remain, but the resulting top-10 concentration of 38.53% is in line with the
+      index's own.
+    </p>
+    <p class="note">
+      <b>Membership and construction.</b> Both baskets are market-cap weighted with a divisor and
+      chained onto SPY's actual 20 March close of $648.57, on a price basis since SPY's quoted price
+      excludes dividends. Membership is rebuilt every session, 504–507 names. Exact 2026 removal dates
+      are not recoverable — Compustat's historical membership was withdrawn from WRDS and CRSP's ends
+      2025-12-31 — so the thirteen departing names are retired against the nine known addition dates;
+      their combined weight is under 0.1%. Compustat's <code>fromdate</code> marks a constituent
+      record's start, not the index join date: CCL, HON, XOM and BNY carry 2026 dates but were in
+      CRSP's Dec-2025 index and are held from the window's start.
+    </p>
+  </section>
+
+  <section id="p-d" role="tabpanel" aria-labelledby="tab-d" hidden>
+    <h2>Daily prices</h2>
+    <p class="note">
+      All 126 sessions, dollars per share. <b>Click any figure in the last two columns</b> to break that
+      day's price into the securities that make it up — then click a sector to go one level deeper.
+    </p>
+    <div class="scroll tallscroll">
+      <table>
+        <thead><tr><th>Date</th><th>SPY price</th><th>SPY price based on combined sector ETFs</th><th>SPY price based on combined 500 equities</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="p-w" role="tabpanel" aria-labelledby="tab-w" hidden>
+    <h2>Weights move every day</h2>
+    <p class="note">
+      The basket is reweighted every session from that day's constituent market caps — 126 sessions,
+      126 distinct weight vectors, each summing to exactly 100%. Each panel is one sector's weight
+      across the window, all on a shared 0–40% scale.
+    </p>
+    <div id="sparks" class="sparkgrid"></div>
+
+    <h2>Why the weighting mattered</h2>
+    <p class="note">Index weight is each sector's share of constituent market cap on 18 September. AUM weight is what the funds' own market caps would have implied — the weighting that produced a $14.77 miss before this was corrected.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>GICS sector</th><th>ETF</th><th>Index weight</th><th>ETF AUM weight</th><th>Difference</th></tr></thead>
+        <tbody id="wbody"></tbody>
+      </table>
+    </div>
+
+    <h2>Daily weights</h2>
+    <p class="note">Every session, percent of index market cap.</p>
+    <div class="scroll tallscroll">
+      <table><thead><tr id="whead"></tr></thead><tbody id="dwbody"></tbody></table>
+    </div>
+  </section>
+
+</div>
+
+<div class="ov" id="ov" hidden role="dialog" aria-modal="true" aria-labelledby="shTtl">
+  <div class="sheet" id="sheet">
+    <div class="sheethead">
+      <button class="btn" id="back" hidden>← Back</button>
+      <div class="grow"><div class="ttl" id="shTtl"></div><div class="sub" id="shSub"></div></div>
+      <button class="btn x" id="close" aria-label="Close">×</button>
+    </div>
+    <div class="sheetbody" id="shBody"></div>
+  </div>
+</div>
+
+<script src="contrib_data.js"></script>
+<script>
+const DT=window.DATA;
+const D=DT.dates.map((d,i)=>[d,DT.spy[i],DT.levSec[i],DT.levStk[i]]);
+const WD=DT.secW.map(r=>r.map(v=>v/1e6));
+const WCOL=DT.order;
+const G2E={"45":"XLK","40":"XLF","50":"XLC","25":"XLY","35":"XLV","20":"XLI","30":"XLP","10":"XLE","55":"XLU","60":"XLRE","15":"XLB"};
+const SECNAME={XLK:"Information Technology",XLF:"Financials",XLC:"Communication Services",
+  XLY:"Consumer Discretionary",XLV:"Health Care",XLI:"Industrials",XLP:"Consumer Staples",
+  XLE:"Energy",XLU:"Utilities",XLRE:"Real Estate",XLB:"Materials"};
+const WTS=[["Information Technology","XLK",37.73,31.86],["Financials","XLF",11.64,13.67],
+["Communication Services","XLC",10.14,5.80],["Consumer Discretionary","XLY",9.54,5.63],
+["Health Care","XLV",9.23,11.25],["Industrials","XLI",7.97,7.92],["Consumer Staples","XLP",4.97,3.60],
+["Energy","XLE",3.47,10.68],["Utilities","XLU",1.90,5.47],["Real Estate","XLRE",1.71,2.01],
+["Materials","XLB",1.70,2.10]];
+
+const NS="http://www.w3.org/2000/svg";
+const el=(n,a)=>{const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const SER={spy:{i:1,c:"--s1",n:"SPY"},sec:{i:2,c:"--s3",n:"Sector ETFs"},stk:{i:3,c:"--s2",n:"500 equities"}};
+const MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtD=s=>{const p=s.split("-");return p[2]+" "+MON[+p[1]-1];};
+const fmtLong=s=>{const p=s.split("-");return p[2]+" "+MON[+p[1]-1]+" "+p[0];};
+const money=v=>"$"+v.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct=v=>(v>=0?"+":"")+v.toFixed(2)+"%";
+const cls=v=>v>=0?"pos":"neg";
+const TICKS=[];
+for(let i=0;i<D.length;i++){const m=D[i][0].slice(0,7);if(i===0||m!==D[i-1][0].slice(0,7))TICKS.push(i);}
+
+/* ---------- charts ---------- */
+const TOGID={spy:"t-spy",sec:"t-sec",stk:"t-stk"};
+function activeKeys(){
+  return ["spy","sec","stk"].filter(k=>{const c=document.getElementById(TOGID[k]);return !c||c.checked;});
+}
+function draw(box){
+  const mode=box.dataset.series,H=+box.dataset.h,W=Math.max(260,box.clientWidth);
+  const keys=mode==="all"?activeKeys():[mode];
+  if(mode==="all"&&keys.length===0){
+    box.innerHTML='<div class="emptychart" style="height:'+H+'px">Select at least one series to plot</div>';
+    return;
+  }
+  const mL=52,mR=62,mT=10,mB=24,pw=W-mL-mR,ph=H-mT-mB,y0=625,y1=790;
+  const X=i=>mL+i*pw/(D.length-1), Y=v=>mT+ph-((v-y0)/(y1-y0))*ph;
+  box.textContent="";
+  const svg=el("svg",{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:"img"});
+  svg.setAttribute("aria-label","Dollars per share: "+keys.map(k=>SER[k].n).join(", "));
+  [650,675,700,725,750,775].forEach(t=>{const y=Y(t);
+    svg.appendChild(el("line",{x1:mL,x2:mL+pw,y1:y,y2:y,stroke:"var(--grid)","stroke-width":1}));
+    const lb=el("text",{x:mL-9,y:y+4,"text-anchor":"end",fill:"var(--ink-3)","font-size":11,"font-family":"'IBM Plex Mono',monospace"});
+    lb.textContent="$"+t;svg.appendChild(lb);});
+  TICKS.forEach(i=>{const lb=el("text",{x:X(i),y:H-6,"text-anchor":"middle",fill:"var(--ink-3)","font-size":11,"font-family":"'IBM Plex Mono',monospace"});
+    lb.textContent=MON[+D[i][0].slice(5,7)-1];svg.appendChild(lb);});
+  const ends=[];
+  keys.forEach(k=>{const c="var("+SER[k].c+")",ix=SER[k].i;let d="";
+    D.forEach((r,i)=>{d+=(i?"L":"M")+X(i)+" "+Y(r[ix]);});
+    svg.appendChild(el("path",{d,fill:"none",stroke:c,"stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round","vector-effect":"non-scaling-stroke"}));
+    const v=D[D.length-1][ix];
+    svg.appendChild(el("circle",{cx:X(D.length-1),cy:Y(v),r:4,fill:c,stroke:"var(--surface)","stroke-width":2}));
+    ends.push({y:Y(v),v,c});});
+  ends.sort((a,b)=>a.y-b.y);
+  for(let i=1;i<ends.length;i++){if(ends[i].y-ends[i-1].y<14)ends[i].y=ends[i-1].y+14;}
+  const xe=X(D.length-1);
+  ends.forEach(e=>{
+    if(Math.abs(e.y-Y(e.v))>1.5)svg.appendChild(el("line",{x1:xe+4,y1:Y(e.v),x2:xe+8,y2:e.y,stroke:e.c,"stroke-width":1.5,"vector-effect":"non-scaling-stroke"}));
+    const g=el("text",{x:xe+11,y:e.y+4,fill:"var(--ink)","font-size":11,"font-family":"'IBM Plex Mono',monospace","font-weight":500});
+    g.textContent=Math.round(e.v);svg.appendChild(g);});
+  const cross=el("line",{x1:0,x2:0,y1:mT,y2:mT+ph,stroke:"var(--axis)","stroke-width":1,opacity:0});
+  svg.appendChild(cross);
+  const dots=keys.map(()=>{const c=el("circle",{r:4.5,fill:"none",stroke:"var(--surface)","stroke-width":2,opacity:0});svg.appendChild(c);return c;});
+  box.appendChild(svg);
+  const tip=document.createElement("div");tip.className="tip";box.appendChild(tip);
+  function move(ev){
+    const rc=box.getBoundingClientRect();
+    const px=(ev.touches?ev.touches[0].clientX:ev.clientX)-rc.left;
+    let i=Math.round((px*(W/rc.width)-mL)/(pw/(D.length-1)));
+    i=Math.max(0,Math.min(D.length-1,i));
+    const x=X(i);
+    cross.setAttribute("x1",x);cross.setAttribute("x2",x);cross.setAttribute("opacity",1);
+    let html='<div class="d">'+fmtD(D[i][0])+"</div>";
+    keys.forEach((k,j)=>{const v=D[i][SER[k].i],c="var("+SER[k].c+")";
+      dots[j].setAttribute("cx",x);dots[j].setAttribute("cy",Y(v));
+      dots[j].setAttribute("fill",c);dots[j].setAttribute("opacity",1);
+      html+='<div class="row"><span class="nm"><span class="swatch" style="background:'+c+'"></span>'+SER[k].n+'</span><span class="v">'+money(v)+"</span></div>";});
+    tip.innerHTML=html;tip.style.opacity=1;
+    const tw=tip.offsetWidth,rel=x*(rc.width/W);
+    tip.style.left=Math.max(4,Math.min(rc.width-tw-4,rel-tw/2))+"px";
+    tip.style.top=Math.max(2,(ev.touches?60:(ev.clientY-rc.top)-tip.offsetHeight-14))+"px";
+  }
+  function out(){tip.style.opacity=0;cross.setAttribute("opacity",0);dots.forEach(d=>d.setAttribute("opacity",0));}
+  box.addEventListener("mousemove",move);box.addEventListener("mouseleave",out);
+  box.addEventListener("touchstart",move,{passive:true});box.addEventListener("touchmove",move,{passive:true});
+  box.addEventListener("touchend",out);
+}
+const boxes=[...document.querySelectorAll(".chart")];
+const drawAll=()=>boxes.forEach(b=>{if(b.getBoundingClientRect().width)draw(b);});
+document.getElementById("togs").addEventListener("change",()=>{
+  ["spy","sec","stk"].forEach(k=>{const c=document.getElementById(TOGID[k]);
+    c.closest(".tog").classList.toggle("on",c.checked);});
+  const all=boxes.find(b=>b.dataset.series==="all");
+  if(all&&all.getBoundingClientRect().width)draw(all);
+});
+
+function sparks(){
+  [...document.querySelectorAll(".sp")].forEach(box=>{
+    const W=Math.max(120,box.clientWidth);if(!W)return;
+    const H=58,j=+box.dataset.col,pad=4,s=WD.map(r=>r[j]);
+    const X=i=>i*(W-1)/(s.length-1),Y=v=>pad+(H-2*pad)*(1-v/40);
+    box.textContent="";
+    const svg=el("svg",{viewBox:`0 0 ${W} ${H}`,width:W,height:H,role:"img"});
+    svg.setAttribute("aria-label",WCOL[j]+" weight from "+s[0].toFixed(1)+"% to "+s[s.length-1].toFixed(1)+"%");
+    [0,10,20,30,40].forEach(t=>svg.appendChild(el("line",{x1:0,x2:W,y1:Y(t),y2:Y(t),stroke:"var(--grid)","stroke-width":1})));
+    let d="";s.forEach((v,i)=>{d+=(i?"L":"M")+X(i)+" "+Y(v);});
+    svg.appendChild(el("path",{d,fill:"none",stroke:"var(--s3)","stroke-width":1.75,"stroke-linejoin":"round","vector-effect":"non-scaling-stroke"}));
+    svg.appendChild(el("circle",{cx:X(s.length-1),cy:Y(s[s.length-1]),r:2.8,fill:"var(--s3)"}));
+    box.appendChild(svg);});
+}
+
+/* ---------- tables ---------- */
+document.getElementById("tbody").innerHTML=D.map((r,i)=>
+  "<tr><td>"+r[0]+"</td><td>"+money(r[1])+"</td>"+
+  '<td class="drill" data-k="sec" data-i="'+i+'" tabindex="0" role="button">'+money(r[2])+"</td>"+
+  '<td class="drill" data-k="stk" data-i="'+i+'" tabindex="0" role="button">'+money(r[3])+"</td></tr>").join("");
+
+document.getElementById("whead").innerHTML="<th>Date</th>"+WCOL.map(c=>"<th>"+c+"</th>").join("");
+document.getElementById("dwbody").innerHTML=WD.map((row,i)=>
+  "<tr><td>"+D[i][0]+"</td>"+row.map(v=>"<td>"+v.toFixed(2)+"%</td>").join("")+"</tr>").join("");
+document.getElementById("sparks").innerHTML=WCOL.map((c,j)=>{
+  const s=WD.map(r=>r[j]);
+  return '<div class="spark"><div class="h"><span class="nm">'+c+'</span><span class="rg">'+
+    s[0].toFixed(1)+"% → "+s[s.length-1].toFixed(1)+'%</span></div><div class="sp" data-col="'+j+'"></div></div>';}).join("");
+const BETA=[["XLK","Information Technology",0.9833,1.104,30.31,27.00,6.19],
+["XLF","Financials",0.9956,0.979,13.67,13.91,1.31],
+["XLC","Communication Services",0.8746,0.598,17.90,26.18,13.64],
+["XLY","Consumer Discretionary",0.9675,0.829,20.88,24.37,6.73],
+["XLV","Health Care",0.9978,0.978,17.54,17.90,1.24],
+["XLI","Industrials",0.9942,1.007,19.13,18.89,2.06],
+["XLP","Consumer Staples",0.9587,0.900,15.57,16.57,4.72],
+["XLE","Energy",0.9959,0.979,23.82,24.23,2.22],
+["XLU","Utilities",0.9950,0.973,15.56,15.91,1.62],
+["XLRE","Real Estate",0.9903,0.965,14.52,14.91,2.09],
+["XLB","Materials",0.9903,0.975,18.51,18.80,2.62]];
+document.getElementById("bbody").innerHTML=BETA.map(b=>{
+  const off=Math.abs(b[3]-1)>0.1;
+  return '<tr><td class="l">'+b[0]+'</td><td class="l">'+b[1]+"</td><td>"+b[2].toFixed(4)+
+   '</td><td'+(off?' class="neg"':'')+">"+b[3].toFixed(3)+"</td><td>"+b[4].toFixed(2)+"%</td><td>"+
+   b[5].toFixed(2)+"%</td><td>"+b[6].toFixed(2)+"%</td></tr>";}).join("");
+
+document.getElementById("wbody").innerHTML=WTS.map(w=>{const d=w[2]-w[3];
+  return "<tr><td>"+w[0]+"</td><td>"+w[1]+"</td><td>"+w[2].toFixed(2)+"%</td><td>"+w[3].toFixed(2)+
+  '%</td><td class="'+cls(d)+'">'+(d>0?"+":"")+d.toFixed(2)+"</td></tr>";}).join("");
+
+/* ---------- drill-down ---------- */
+const ov=document.getElementById("ov"),sheet=document.getElementById("sheet"),
+      shTtl=document.getElementById("shTtl"),shSub=document.getElementById("shSub"),
+      shBody=document.getElementById("shBody"),backBtn=document.getElementById("back");
+let stack=[],lastFocus=null;
+
+function eqRows(i){
+  const lev=DT.levStk[i];
+  return DT.eq[i].map(r=>({t:DT.tickers[r[0]],n:DT.names[r[0]],g:DT.tsec[r[0]],
+    w:r[1]/1e8,r:r[2]/1e6,c:lev*r[1]/1e8})).sort((a,b)=>b.c-a.c);
+}
+function eqTable(rows,max){
+  const show=max?rows.slice(0,max):rows, mx=Math.max(...rows.map(r=>r.c));
+  return '<div class="scroll'+(max?"":" tallscroll")+'"><table><thead><tr><th>#</th><th class="l">Ticker</th><th class="l">Company</th>'+
+    '<th></th><th>Weight</th><th>Contribution</th><th>Day return</th></tr></thead><tbody>'+
+    show.map((r,k)=>"<tr><td>"+(k+1)+'</td><td class="l">'+r.t+'</td><td class="l">'+(r.n||"").slice(0,34)+
+      '</td><td class="barcell"><span class="bar eq" style="width:'+Math.max(1,Math.round(86*r.c/mx))+'px"></span></td><td>'+
+      (100*r.w).toFixed(3)+"%</td><td>"+money(r.c)+'</td><td class="'+cls(r.r)+'">'+pct(100*r.r)+"</td></tr>").join("")+
+    "</tbody></table></div>";
+}
+function viewSectors(i){
+  const lev=DT.levSec[i],W=DT.secW[i],R=DT.secR[i];
+  const rows=WCOL.map((e,s)=>({e,w:W[s]/1e8,r:R[s]/1e6,c:lev*W[s]/1e8,s})).sort((a,b)=>b.c-a.c);
+  const mx=Math.max(...rows.map(r=>r.c));
+  return {title:"Sector contributions",
+    sub:fmtLong(DT.dates[i])+" · sector-built price "+money(lev)+" · click a sector for its equities",
+    html:'<div class="scroll"><table><thead><tr><th class="l">Sector</th><th class="l">ETF</th><th></th><th>Index weight</th>'+
+      "<th>Contribution</th><th>ETF day return</th></tr></thead><tbody>"+
+      rows.map(r=>'<tr class="click" data-sec="'+r.e+'" data-i="'+i+'" tabindex="0" role="button"><td class="l">'+SECNAME[r.e]+
+        '</td><td class="l">'+r.e+'</td><td class="barcell"><span class="bar" style="width:'+Math.max(1,Math.round(86*r.c/mx))+'px"></span></td><td>'+
+        (100*r.w).toFixed(2)+"%</td><td>"+money(r.c)+'</td><td class="'+cls(r.r)+'">'+pct(100*r.r)+"</td></tr>").join("")+
+      "</tbody></table></div>"+
+      '<div class="sheetfoot"><span>11 sectors, weights sum to 100%</span><span>Total <b>'+money(rows.reduce((a,b)=>a+b.c,0))+"</b></span></div>"};
+}
+function viewSectorEquities(i,etf){
+  const g=Object.keys(G2E).find(k=>G2E[k]===etf);
+  const all=eqRows(i).filter(r=>r.g===g);
+  const levS=DT.levSec[i],s=WCOL.indexOf(etf),secC=levS*DT.secW[i][s]/1e8;
+  const levE=DT.levStk[i];
+  const rows=all.map(r=>({...r,c:r.w*levS}));
+  const und=rows.reduce((a,b)=>a+b.w*b.r,0)/rows.reduce((a,b)=>a+b.w,0);
+  return {title:etf+" · "+SECNAME[etf],
+    sub:fmtLong(DT.dates[i])+" · "+rows.length+" equities · sector contributes "+money(secC)+" of "+money(levS),
+    html:eqTable(rows,0)+
+      '<div class="sheetfoot"><span>ETF day return <b class="'+cls(DT.secR[i][s]/1e6)+'">'+pct(100*DT.secR[i][s]/1e6)+
+      '</b> · underlying cap-weighted return of these names <b class="'+cls(und)+'">'+pct(100*und)+"</b></span>"+
+      "<span>Sector total <b>"+money(rows.reduce((a,b)=>a+b.c,0))+"</b></span></div>"};
+}
+function viewEquities(i,all){
+  const rows=eqRows(i),lev=DT.levStk[i];
+  return {title:"Equity contributions",
+    sub:fmtLong(DT.dates[i])+" · equity-built price "+money(lev)+" · "+rows.length+" securities",
+    html:eqTable(rows,all?0:10)+
+      (all?"":'<div class="more"><button class="btn" id="showall" data-i="'+i+'">Show all '+rows.length+" securities →</button></div>")+
+      '<div class="sheetfoot"><span>'+(all?"All "+rows.length+" securities":"Top 10 of "+rows.length+" by contribution")+
+      "</span><span>Total <b>"+money(rows.reduce((a,b)=>a+b.c,0))+"</b></span></div>"};
+}
+function render(v,full){
+  shTtl.textContent=v.title;shSub.textContent=v.sub;shBody.innerHTML=v.html;
+  sheet.classList.toggle("full",!!full);
+  backBtn.hidden=stack.length<2;
+  ov.hidden=false;ov.scrollTop=0;
+  document.body.style.overflow="hidden";
+}
+function push(v,full){stack.push({v,full});render(v,full);}
+function openSheet(v,full){lastFocus=document.activeElement;stack=[];push(v,full);}
+function closeSheet(){ov.hidden=true;stack=[];document.body.style.overflow="";if(lastFocus)lastFocus.focus();}
+backBtn.onclick=()=>{stack.pop();const top=stack[stack.length-1];render(top.v,top.full);};
+document.getElementById("close").onclick=closeSheet;
+ov.addEventListener("click",e=>{if(e.target===ov)closeSheet();});
+addEventListener("keydown",e=>{if(e.key==="Escape"&&!ov.hidden)closeSheet();});
+
+document.getElementById("tbody").addEventListener("click",e=>{
+  const td=e.target.closest("td.drill");if(!td)return;
+  const i=+td.dataset.i;
+  openSheet(td.dataset.k==="sec"?viewSectors(i):viewEquities(i,false));
+});
+document.getElementById("tbody").addEventListener("keydown",e=>{
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  const td=e.target.closest("td.drill");if(!td)return;e.preventDefault();td.click();
+});
+shBody.addEventListener("click",e=>{
+  const tr=e.target.closest("tr.click");
+  if(tr){push(viewSectorEquities(+tr.dataset.i,tr.dataset.sec));return;}
+  const sa=e.target.closest("#showall");
+  if(sa){push(viewEquities(+sa.dataset.i,true),true);}
+});
+shBody.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  const tr=e.target.closest("tr.click");if(!tr)return;e.preventDefault();tr.click();
+});
+
+/* ---------- tabs ---------- */
+const tabs=[...document.querySelectorAll(".tab")];
+tabs.forEach(tb=>tb.addEventListener("click",()=>{
+  tabs.forEach(o=>{const on=o===tb;o.setAttribute("aria-selected",on?"true":"false");
+    document.getElementById(o.getAttribute("aria-controls")).hidden=!on;});
+  drawAll();sparks();
+}));
+drawAll();sparks();
+let t;addEventListener("resize",()=>{clearTimeout(t);t=setTimeout(()=>{drawAll();sparks();},140);});
+</script>
+
+</body>
+</html>

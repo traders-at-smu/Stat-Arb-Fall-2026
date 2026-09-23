@@ -1,0 +1,65 @@
+SPY BASKET TRACKING STUDY — how to open it
+==========================================
+
+QUICKEST WAY
+------------
+1. Unzip this file (double-click it on Mac, or right-click > Extract All on Windows).
+2. Open the folder it creates.
+3. Double-click  index.html
+It opens in your default browser. That's it — no install, no server, no internet.
+
+IMPORTANT: keep the files together
+----------------------------------
+index.html loads contrib_data.js from the same folder. If you move index.html on its
+own, the page opens but every chart and table will be empty. Move the whole folder.
+
+WHAT YOU'RE LOOKING AT
+----------------------
+SPY's share price rebuilt two ways over 126 trading days (20 Mar - 18 Sep 2026):
+from the 500 S&P constituents, and from the eleven Select Sector SPDR ETFs.
+Both start at SPY's real 20 March close of $648.57.
+
+   SPY actual          $761.69
+   From 500 equities   $761.96   (27 cents off)
+   From sector ETFs    $758.77   ($2.92 off)
+
+FOUR TABS ACROSS THE TOP
+------------------------
+Charts         Each series on its own, then all three together. On the combined
+               chart, use the checkboxes to show/hide any series. Hover anywhere
+               on any chart for that day's values.
+
+Daily prices   All 126 sessions. The last two columns are clickable:
+                 - click a sector-ETF price  -> the 11 sectors behind it, with
+                   each one's weight and dollar contribution. Click any sector
+                   row again -> every stock inside that sector.
+                 - click an equity price     -> top 10 contributors, then
+                   "Show all 506" for the full list.
+               Contributions always add up to the price shown.
+
+Sector weights 11 sparklines showing each sector's weight moving across the
+               window, the index-weight vs ETF-AUM-weight comparison, and the
+               full daily weights table.
+
+Why the gap    Why the sector ETFs don't reproduce SPY: the Select Sector 24/50
+               capping rule. Includes each ETF measured against the stocks it
+               actually holds, plus the data notes.
+
+BROWSER NOTES
+-------------
+Works in Chrome, Safari, Firefox and Edge. Nothing loads from the internet except
+the web fonts, so it renders fine offline (fonts just fall back to system ones).
+Dark mode follows your OS setting automatically.
+
+FILES
+-----
+index.html                    the page
+contrib_data.js               data the page reads (1.2 MB) - must stay alongside
+README.md                     result, method, findings
+data/daily_levels.csv         the three price series, 126 rows
+data/source/                  the original WRDS extracts everything was built from
+                                sp500_constituents_daily_*.csv   64,629 rows
+                                spy_sector_etfs_daily_*.csv       1,512 rows
+                                sp500_sector_membership_map.csv   GICS sectors
+
+Source data is Compustat via WRDS, under SMU's subscription.
