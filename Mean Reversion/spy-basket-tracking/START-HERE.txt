@@ -1,0 +1,93 @@
+REBUILDING SPY'S SHARE PRICE FROM ITS PARTS
+Traders@SMU - Stat Arb - 20 Mar to 25 Sep 2026
+
+HOW TO OPEN IT
+--------------
+1. Unzip this folder anywhere (Desktop is fine). Keep the files together -
+   index.html reads the two .js files sitting next to it.
+2. Double-click index.html. It opens in your default browser.
+3. That's it. No install, no server, no internet connection needed.
+
+If double-clicking opens a text editor instead of a browser, right-click
+index.html -> Open With -> Chrome / Safari / Firefox.
+
+Do NOT open index.html from inside the .zip preview - macOS and Windows both
+show zip contents in a temporary folder where the .js files aren't reachable,
+and the page will load blank. Unzip first.
+
+
+WHAT YOU'RE LOOKING AT
+----------------------
+SPY's share price rebuilt two independent ways and compared against the real
+thing: once from the 500 S&P 500 constituent equities, once from the eleven
+Select Sector SPDR ETFs. Both are market-cap weighted with a divisor, the way
+the index itself is computed.
+
+Built on 2,680,494 ten-minute bars - 528 tickers, 5,109 buckets, 131 sessions.
+
+Five tabs:
+
+  Charts           Each series alone, then all three together with checkboxes.
+                   The "Sampling" switch flips the charts between 10-minute
+                   bars and daily closes.
+
+  Intraday prices  Pick a session, see its 39 ten-minute buckets. Click any
+                   figure in the sector column to break that bucket's price
+                   into the eleven sectors behind it.
+
+  Daily prices     All 126 sessions. Click any figure in the last two columns
+                   to drill into the securities behind it, then click a sector
+                   to go one level deeper, down to individual companies.
+
+  Sector weights   How each sector's index weight moved across the window.
+
+  Why the gap      The analysis: why eleven ETFs holding all 500 stocks do not
+                   reproduce the index, and why that gap is not free money.
+
+
+THE SHORT VERSION OF THE FINDING
+--------------------------------
+Rebuilt from the 500 equities, SPY comes back within $1.13.
+Rebuilt from the eleven sector ETFs, it lands $4.39 short.
+
+That shortfall is the Select Sector 24/50 capping rule - no company above 24%,
+and everything above 4.8% scaled down if it collectively tops 50%. XLC is the
+clearest case: it moves barely 60% as much as the Communication Services stocks
+it holds, because Alphabet and Meta blow through the cap.
+
+It is not arbitrageable. The funds are contractually required to hold weights
+the index does not, so capturing the gap means single-stock overlays to undo
+each cap - a real trade with financing and borrow costs.
+
+Sampling ten times more often does not shrink the sector gap (tracking error
+2.66% daily vs 2.68% intraday), which is how you know it is structural rather
+than noise.
+
+
+WHAT'S IN HERE
+--------------
+  index.html                 The page. Start here.
+  contrib_data.js            Daily levels, weights, per-security detail.
+  intraday_data.js           10-minute series + per-bucket sector contributions.
+  build_intraday.py          The intraday build, incl. corporate-action scan.
+  README.md                  Full method notes, caveats and reproduction steps.
+  data/daily_levels.csv      Three price series, daily.
+  data/intraday_levels.csv   Three price series, 10-minute.
+  data/intraday_coverage.csv Bars present per ticker, out of 5,109.
+  data/intraday_close_check.csv  Intraday vs daily build at each close.
+  data/corporate_action_scan.csv Every >20% overnight move and its verdict.
+  data/source/               The original WRDS extracts everything derives from.
+
+NOT included: the raw 10-minute bars (intraday_10min_all.csv, 107 MB). They
+live in "Documents/traders etf strategy/intraday/raw/". build_intraday.py
+regenerates everything here from them.
+
+
+DATA LICENSING - READ BEFORE SHARING
+------------------------------------
+The daily data is Compustat, via WRDS under SMU's subscription. Compustat data
+is licensed and generally may not be redistributed outside the subscribing
+institution. data/source/ and contrib_data.js are the sensitive pieces. Keep
+this zip inside the club, or check with SMU's WRDS representative first.
+
+The intraday bars are from Alpaca's free API tier and carry their own terms.
