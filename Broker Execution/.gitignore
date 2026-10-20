@@ -1,0 +1,28 @@
+# Credentials and machine-local configuration
+.env
+.env.*
+*.env
+!example.env
+config.local.json
+# Private inputs and generated account/data outputs
+data/
+ian_original/
+tests/fixtures/
+archives/
+reports/
+backups/
+*.csv
+*.parquet
+*.pkl
+*.pickle
+*.zip
+*.html
+*.log
+*.lock
+# Environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store

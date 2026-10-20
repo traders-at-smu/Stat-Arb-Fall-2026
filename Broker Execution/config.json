@@ -1,0 +1,19 @@
+{
+  "research_directory": null,
+  "book_size": 100000,
+  "max_signal_age_days": 4,
+  "ibkr": {
+    "host": "127.0.0.1",
+    "port": 7497,
+    "client_id": 17,
+    "timeout_seconds": 15,
+    "contract_timeout_seconds": 20,
+    "observation_seconds": 10
+  },
+  "shortability_symbols": [
+    "KRE",
+    "KIE",
+    "IHI",
+    "IYT"
+  ]
+}
