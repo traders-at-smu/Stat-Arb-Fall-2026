@@ -1,0 +1,2 @@
+# Optional standalone TWS diagnostic dependency; does not change Alpaca dependencies.
+ibapi==9.81.1.post1

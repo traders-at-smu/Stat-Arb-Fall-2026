@@ -1,0 +1,24 @@
+[project]
+name = "smu-broker-execution"
+version = "0.1.0"
+description = "Locked paper preparation and read-only broker diagnostics"
+requires-python = ">=3.9,<3.13"
+dependencies = [
+  "numpy==2.0.2",
+  "pandas==2.3.3",
+  "alpaca-py==0.43.5",
+  "python-dotenv==1.2.1",
+]
+
+[project.optional-dependencies]
+ibkr = ["ibapi==9.81.1.post1"]
+test = ["pytest==8.4.2"]
+research = ["numba==0.60.0", "scipy==1.13.1", "pyarrow==21.0.0"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["research: requires private original research, history and regression fixtures"]
